@@ -202,8 +202,10 @@ EYE_AR_CONSEC_FRAMES = 48
 # frames the head must be outside of the control limits for to set off the
 # alarm
 
-Y_LCL = 0.8
-Y_UCL = 1.25
+Y_LCL = None
+Y_UCL = None
+Y_LCL_ARR = []
+Y_UCL_ARR = []
 Y_CONSEC_FRAMES = 30
 
 # define three constants, one for the head x direction movement Lower Control Limit 
@@ -212,8 +214,10 @@ Y_CONSEC_FRAMES = 30
 # frames the head must be outside of the control limits for to set off the
 # alarm
 
-X_LCL = 0.5
-X_UCL = 2
+X_LCL = None
+X_UCL = None
+X_LCL_ARR = []
+X_UCL_ARR = []
 X_CONSEC_FRAMES = 30
 
 # initialize the frame counter as well as a boolean used to
@@ -230,6 +234,9 @@ HY_ALARM_ON = False
 # indicate if the alarm is going off
 HX_COUNTER = 0
 HX_ALARM_ON = False
+
+# count the first 5 frame
+FIRST5_FRAME = 0
 
 # initialize dlib's face detector (HOG-based) and then create
 # the facial landmark predictor
@@ -285,11 +292,35 @@ while True:
 
 		leftEAR = eye_aspect_ratio(leftEye)
 		rightEAR = eye_aspect_ratio(rightEye)
-		#headYMove = measure_distance(33,9)
-		
-
 		# average the eye aspect ratio together for both eyes
 		ear = (leftEAR + rightEAR) / 2.0
+		xMoveRatio, yMoveRatio = head_x_y_move()
+
+		if FIRST5_FRAME <= 5:
+
+			x_lcl = xMoveRatio*0.5
+			x_ucl = xMoveRatio*2
+
+			y_lcl = yMoveRatio*.8
+			y_ucl = yMoveRatio*1.25
+
+			X_LCL_ARR.append(x_lcl)
+			X_UCL_ARR.append(x_ucl)
+			Y_LCL_ARR.append(y_lcl)
+			Y_UCL_ARR.append(y_ucl)
+
+			X_LCL = np.mean(X_LCL_ARR)
+			X_UCL = np.mean(X_UCL_ARR)
+			Y_LCL = np.mean(Y_LCL_ARR)
+			Y_UCL = np.mean(Y_UCL_ARR)
+
+			print(X_UCL,X_LCL,Y_UCL,Y_LCL)
+
+			FIRST5_FRAME+=1
+
+		COUNTER,ALARM_ON = eye_ratio_detect(COUNTER,ALARM_ON)
+		HY_COUNTER,HY_ALARM_ON = head_y_turn_detect(HY_COUNTER,HY_ALARM_ON)
+		HX_COUNTER,HX_ALARM_ON = head_x_turn_detect(HX_COUNTER,HX_ALARM_ON)
 
 		# compute the convex hull for the left and right eye, then
 		# visualize each of the eyes
@@ -309,43 +340,6 @@ while True:
 		# cv2.drawContours(frame, [jaw], -1, (0, 255, 0), 1)
 		draw_facepoint(33,35)
 		draw_facepoint(8,10)
-
-		COUNTER,ALARM_ON = eye_ratio_detect(COUNTER,ALARM_ON)
-		xMoveRatio, yMoveRatio = head_x_y_move()
-		HY_COUNTER,HY_ALARM_ON = head_y_turn_detect(HY_COUNTER,HY_ALARM_ON)
-		HX_COUNTER,HX_ALARM_ON = head_x_turn_detect(HX_COUNTER,HX_ALARM_ON)
-		
-
-		# # check to see if the eye aspect ratio is below the blink
-		# # threshold, and if so, increment the blink frame counter
-		# if ear < EYE_AR_THRESH:
-		# 	COUNTER += 1
-
-		# 	# if the eyes were closed for a sufficient number of
-		# 	# then sound the alarm
-		# 	if COUNTER >= EYE_AR_CONSEC_FRAMES:
-		# 		# if the alarm is not on, turn it on
-		# 		if not ALARM_ON:
-		# 			ALARM_ON = True
-
-		# 			# check to see if an alarm file was supplied,
-		# 			# and if so, start a thread to have the alarm
-		# 			# sound played in the background
-		# 			if args["alarm"] != "":
-		# 				t = Thread(target=sound_alarm,
-		# 					args=(args["alarm"],))
-		# 				t.deamon = True
-		# 				t.start()
-
-		# 		# draw an alarm on the frame
-		# 		cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
-		# 			cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-		# # otherwise, the eye aspect ratio is not below the blink
-		# # threshold, so reset the counter and alarm
-		# else:
-		# 	COUNTER = 0
-		# 	ALARM_ON = False
 
 		# draw the computed eye aspect ratio on the frame to help
 		# with debugging and setting the correct eye aspect ratio
