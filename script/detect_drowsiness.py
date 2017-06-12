@@ -178,6 +178,19 @@ def head_y_turn_detect(COUNTER,ALARM_ON):
 
 		return COUNTER,ALARM_ON
 
+
+def rect_to_bb(rect):
+	# take a bounding predicted by dlib and convert it
+	# to the format (x, y, w, h) as we would normally do
+	# with OpenCV
+	x = rect.left()
+	y = rect.top()
+	w = rect.right() - x
+	h = rect.bottom() - y
+ 
+	# return a tuple of (x, y, w, h)
+	return (x, y, w, h)
+
  
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -276,8 +289,12 @@ while True:
 		# determine the facial landmarks for the face region, then
 		# convert the facial landmark (x, y)-coordinates to a NumPy
 		# array
+
 		shape = predictor(gray, rect)
 		shape = face_utils.shape_to_np(shape)
+		
+		# Get the face rectangular 
+		(x, y, w, h) = face_utils.rect_to_bb(rect)
 
 		# extract the left and right eye coordinates, then use the
 		# coordinates to compute the eye aspect ratio for both eyes
@@ -319,8 +336,10 @@ while True:
 			FIRST5_FRAME+=1
 
 		COUNTER,ALARM_ON = eye_ratio_detect(COUNTER,ALARM_ON)
-		HY_COUNTER,HY_ALARM_ON = head_y_turn_detect(HY_COUNTER,HY_ALARM_ON)
-		HX_COUNTER,HX_ALARM_ON = head_x_turn_detect(HX_COUNTER,HX_ALARM_ON)
+		if ~ALARM_ON: 
+			HY_COUNTER,HY_ALARM_ON = head_y_turn_detect(HY_COUNTER,HY_ALARM_ON)
+		if ~ALARM_ON and ~HY_ALARM_ON:
+			HX_COUNTER,HX_ALARM_ON = head_x_turn_detect(HX_COUNTER,HX_ALARM_ON)
 
 		# compute the convex hull for the left and right eye, then
 		# visualize each of the eyes
@@ -331,15 +350,17 @@ while True:
 		noseHull = cv2.convexHull(nose)
 		jawHull = cv2.convexHull(jaw)
 		mouthHull = cv2.convexHull(mouth)
-		cv2.drawContours(frame, [leftEyeHull], -1, (0, 255, 0), 1)
-		cv2.drawContours(frame, [rightEyeHull], -1, (0, 255, 0), 1)
+
+		cv2.drawContours(frame, [leftEyeHull], -1, (179,66,244), 2)
+		cv2.drawContours(frame, [rightEyeHull], -1, (179,66,244), 2)
+		cv2.rectangle(frame, (x, y), (x + w, y + h), (200,244,66), 2)
 		# cv2.drawContours(frame, [leftEarHull], -1, (0, 255, 0), 1)
 		# cv2.drawContours(frame, [rightEarHull], -1, (0, 255, 0), 1)
 		# cv2.drawContours(frame, [nose], -1, (0, 255, 0), 1)
 		# cv2.drawContours(frame, [mouth], -1, (0, 255, 0), 1)
 		# cv2.drawContours(frame, [jaw], -1, (0, 255, 0), 1)
-		draw_facepoint(33,35)
-		draw_facepoint(8,10)
+		#draw_facepoint(33,35)
+		#draw_facepoint(8,10)
 
 		# draw the computed eye aspect ratio on the frame to help
 		# with debugging and setting the correct eye aspect ratio
