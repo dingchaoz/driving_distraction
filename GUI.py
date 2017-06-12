@@ -32,9 +32,9 @@ class GUI(object):
         '''
         Display the statefarm logo on top
         '''
-        logo = cv2.imread("./logo1.jpg")
+        logo = cv2.imread("./resource/logo.jpg")
         logo = cv2.cvtColor(logo, cv2.COLOR_BGR2RGB)
-        logo = imutils.resize(logo, width=1000)
+        logo = imutils.resize(logo, width=800)
 
         logo = Image.fromarray(logo)
         logo = ImageTk.PhotoImage(logo)
@@ -60,7 +60,7 @@ class GUI(object):
             _, frame = self._vs.read()
             frame = cv2.flip(frame, 1)
         else:
-            frame = cv2.imread('./idle.png')
+            frame = cv2.imread('./resource/idle.png')
 
         cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         cv2image = imutils.resize(cv2image, width=1000)
@@ -158,13 +158,14 @@ class GUI(object):
         self._root.quit()
 
 
+    def get_frame(self):
+        pass
+
 
 if __name__ == '__main__':
 
     root = tk.Tk()
-    # root.rowconfigure(0,weight=1)
-    # root.columnconfigure(0,weight=1)
-    root.wm_title("Drowsiness Detector")
+    root.wm_title("Driving Monitor")
 
     vs = cv2.VideoCapture(0)
 
