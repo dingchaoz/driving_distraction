@@ -29,6 +29,9 @@ class Detector(object):
         self.gray_frame = None
         self.rects      = None
 
+        self.EAR_COUNTER, self.HY_COUNTER, self.HX_COUNTER      = (0, 0, 0)
+        self.EAR_ALARM_ON, self.HY_ALARM_ON, self.HX_ALARM_ON   = (False, False, False)
+
         if model_path is None:
             self.face_detector, self.shape_predictor = self.load_face_model('./resource/shape_predictor_68_face_landmarks.dat')
         else:
@@ -60,14 +63,21 @@ class Detector(object):
         return
 
 
-    def new_frame(self, frame):
+    def new_frame(self, frame, width=450):
         '''
         read in a new frame and preprocess it
         '''
-        self.frame = imutils.resize(frame, width=450)
+        self.frame = imutils.resize(frame, width=width)
         self.gray_frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
         self.rects = self.face_detector(self.gray_frame, 0)
+
+
+    def read(self):
+        '''
+        be compatible with cv2.VideoCapture()
+        '''
+        return self.frame
 
 
     def eye_aspect_ratio(self, eyel, eyer):
@@ -134,18 +144,18 @@ class Detector(object):
         cv2.drawContours(self.frame, [pointHull], -1, (0, 255, 0), 1)
 
 
-    def eye_ratio_detect(self, ear, shape, COUNTER, ALARM_ON):
+    def eye_ratio_detect(self, ear, shape):
         # check to see if the eye aspect ratio is below the blink
         # threshold, and if so, increment the drowsiness frame counter
         if ear < EYE_AR_THRESH:
-            COUNTER += 1
+            self.EAR_COUNTER += 1
 
             # if the eyes were closed for a sufficient number of
             # then sound the alarm
-            if COUNTER >= EYE_AR_CONSEC_FRAMES:
+            if self.EAR_COUNTER >= EYE_AR_CONSEC_FRAMES:
                 # if the alarm is not on, turn it on
-                if not ALARM_ON:
-                    ALARM_ON = True
+                if not self.EAR_ALARM_ON:
+                    self.EAR_ALARM_ON = True
                     self.start_alarm()
 
                 # draw an alarm on the frame
@@ -155,66 +165,60 @@ class Detector(object):
         # otherwise, the eye aspect ratio is not below the blink
         # threshold, so reset the counter and alarm
         else:
-            COUNTER  = 0
-            ALARM_ON = False
-
-        return COUNTER, ALARM_ON
+            self.EAR_COUNTER  = 0
+            self.EAR_ALARM_ON = False
 
 
-    def head_x_turn_detect(self, xMoveRatio, shape, COUNTER, ALARM_ON):
-            # check to see if the head movement X ratio is below or above the X direction movement
-            # threshold, and if so, increment the blink frame counter
-            if xMoveRatio < X_LCL or xMoveRatio > X_UCL:
-                COUNTER += 1
-                # if the eyes were closed for a sufficient number of
-                # then sound the alarm
-                if COUNTER >= X_CONSEC_FRAMES:
-                    # if the alarm is not on, turn it on
-                    if not ALARM_ON:
-                        ALARM_ON = True
-                        self.start_alarm()
+    def head_x_turn_detect(self, xMoveRatio, shape):
+        # check to see if the head movement X ratio is below or above the X direction movement
+        # threshold, and if so, increment the blink frame counter
+        if xMoveRatio < X_LCL or xMoveRatio > X_UCL:
+            self.HX_COUNTER += 1
+            # if the eyes were closed for a sufficient number of
+            # then sound the alarm
+            if self.HX_COUNTER >= X_CONSEC_FRAMES:
+                # if the alarm is not on, turn it on
+                if not self.HX_ALARM_ON:
+                    self.HX_ALARM_ON = True
+                    self.start_alarm()
 
-                    # draw an alarm on the frame
-                    cv2.putText(self.frame, "HEAD MOVEMENT X ALERT!", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                # draw an alarm on the frame
+                cv2.putText(self.frame, "HEAD MOVEMENT X ALERT!", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-            # otherwise, the eye aspect ratio is not below the blink
-            # threshold, so reset the counter and alarm
-            else:
-                COUNTER  = 0
-                ALARM_ON = False
-
-            return COUNTER, ALARM_ON
+        # otherwise, the eye aspect ratio is not below the blink
+        # threshold, so reset the counter and alarm
+        else:
+            self.HX_COUNTER  = 0
+            self.HX_ALARM_ON = False
 
 
-    def head_y_turn_detect(self, yMoveRatio, shape, COUNTER, ALARM_ON):
-            # check to see if the head movement Y ratio is below or above the Y direction movement
-            # threshold, and if so, increment the blink frame counter
-            if yMoveRatio < Y_LCL or yMoveRatio > Y_UCL:
-                COUNTER += 1
+    def head_y_turn_detect(self, yMoveRatio, shape):
+        # check to see if the head movement Y ratio is below or above the Y direction movement
+        # threshold, and if so, increment the blink frame counter
+        if yMoveRatio < Y_LCL or yMoveRatio > Y_UCL:
+            self.HY_COUNTER += 1
 
-                # if the eyes were closed for a sufficient number of
-                # then sound the alarm
-                if COUNTER >= Y_CONSEC_FRAMES:
-                    # if the alarm is not on, turn it on
-                    if not ALARM_ON:
-                        ALARM_ON = True
-                        self.start_alarm()
+            # if the eyes were closed for a sufficient number of
+            # then sound the alarm
+            if self.HY_COUNTER >= Y_CONSEC_FRAMES:
+                # if the alarm is not on, turn it on
+                if not self.HY_ALARM_ON:
+                    self.HY_ALARM_ON = True
+                    self.start_alarm()
 
-                    # draw an alarm on the frame
-                    cv2.putText(self.frame, "HEAD MOVEMENT Y ALERT!", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                # draw an alarm on the frame
+                cv2.putText(self.frame, "HEAD MOVEMENT Y ALERT!", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-            # otherwise, the eye aspect ratio is not below the blink
-            # threshold, so reset the counter and alarm
-            else:
-                COUNTER  = 0
-                ALARM_ON = False
-
-            return COUNTER, ALARM_ON
+        # otherwise, the eye aspect ratio is not below the blink
+        # threshold, so reset the counter and alarm
+        else:
+            self.HY_COUNTER  = 0
+            self.HY_ALARM_ON = False
 
 
-    def analyze_frame(self, COUNTER, ALARM_ON, HY_COUNTER, HY_ALARM_ON, HX_COUNTER, HX_ALARM_ON):
+    def analyze_frame(self):
         '''
         process the current frame, detect its face components and decide if drowsiness/distraction is present
         '''
@@ -243,36 +247,42 @@ class Detector(object):
             noseHull     = cv2.convexHull(nose)
             jawHull      = cv2.convexHull(jaw)
             mouthHull    = cv2.convexHull(mouth)
-            cv2.drawContours(dt.frame, [leftEyeHull], -1, (0, 255, 0), 1)
-            cv2.drawContours(dt.frame, [rightEyeHull], -1, (0, 255, 0), 1)
+            cv2.drawContours(self.frame, [leftEyeHull], -1, (0, 255, 0), 1)
+            cv2.drawContours(self.frame, [rightEyeHull], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [leftEarHull], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [rightEarHull], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [nose], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [mouth], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [jaw], -1, (0, 255, 0), 1)
-            dt.draw_facepoint(shape, 33, 35)
-            dt.draw_facepoint(shape, 8, 10)
+            self.draw_facepoint(shape, 33, 35)
+            self.draw_facepoint(shape, 8, 10)
 
 
-            ear = dt.eye_aspect_ratio(leftEye, rightEye)
-            xMoveRatio, yMoveRatio = dt.head_x_y_move(shape)
+            ear = self.eye_aspect_ratio(leftEye, rightEye)
+            xMoveRatio, yMoveRatio = self.head_x_y_move(shape)
             #headYMove = measure_distance(33,9)
          
-            COUNTER, ALARM_ON       = dt.eye_ratio_detect(ear, shape, COUNTER, ALARM_ON)            
-            HY_COUNTER, HY_ALARM_ON = dt.head_y_turn_detect(yMoveRatio, shape, HY_COUNTER, HY_ALARM_ON)
-            HX_COUNTER, HX_ALARM_ON = dt.head_x_turn_detect(xMoveRatio, shape, HX_COUNTER, HX_ALARM_ON)
+            self.eye_ratio_detect(ear, shape)            
+            self.head_y_turn_detect(yMoveRatio, shape)
+            self.head_x_turn_detect(xMoveRatio, shape)
             
-
-            cv2.putText(dt.frame, "EAR: {:.2f}".format(ear), (300, 30),
+            cv2.putText(self.frame, "EAR: {:.2f}".format(ear), (300, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-            cv2.putText(dt.frame, "X: {:.2f}".format(xMoveRatio), (300, 60),
+            cv2.putText(self.frame, "X: {:.2f}".format(xMoveRatio), (300, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)                  
             
-            cv2.putText(dt.frame, "Y: {:.2f}".format(yMoveRatio), (300, 90),
+            cv2.putText(self.frame, "Y: {:.2f}".format(yMoveRatio), (300, 90),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        return COUNTER, ALARM_ON, HY_COUNTER, HY_ALARM_ON, HX_COUNTER, HX_ALARM_ON
+        try: 
+            return (ear, self.EAR_ALARM_ON, \
+                    yMoveRatio, self.HY_ALARM_ON, \
+                    xMoveRatio, self.HX_ALARM_ON)
+        except:
+            return (None, self.EAR_ALARM_ON, \
+                    None, self.HY_ALARM_ON, \
+                    None, self.HX_ALARM_ON)
 
 
 
@@ -287,30 +297,14 @@ if __name__ == '__main__':
     print("[INFO] starting video stream thread...")
     vs = VideoStream(src=webcam).start()
     time.sleep(1.0)
-
-    COUNTER = 0
-    ALARM_ON = False
-    # initialize the frame counter of head Y direction movement as well as a boolean used to
-    # indicate if the alarm is going off
-    HY_COUNTER = 0
-    HY_ALARM_ON = False
-    # initialize the frame counter of head X direction movement as well as a boolean used to
-    # indicate if the alarm is going off
-    HX_COUNTER = 0
-    HX_ALARM_ON = False
     
     # loop over frames from the video stream
     while True:
         # grab the frame from the threaded video file stream, resize
         # it, and convert it to grayscale channels)
         dt.new_frame(vs.read())
-
-        # draw facial landmarks?
      
-        COUNTER, ALARM_ON, HY_COUNTER, HY_ALARM_ON, HX_COUNTER, HX_ALARM_ON = dt.analyze_frame( \
-                                                                                COUNTER, ALARM_ON, \
-                                                                                HY_COUNTER, HY_ALARM_ON, \
-                                                                                HX_COUNTER, HX_ALARM_ON)  
+        ear, EAR_ALARM_ON, yMoveRatio, HY_ALARM_ON, xMoveRatio, HX_ALARM_ON = dt.analyze_frame()
 
         # show the frame
         cv2.imshow("Frame", dt.frame)
