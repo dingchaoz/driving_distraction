@@ -311,6 +311,8 @@ M_COUNTER = 0
 M_ALARM_ON = False
 
 # initialize the frame counter of head Y direction movement as well as a boolean used to
+from imutils import face_utils
+
 # indicate if the alarm is going off
 HY_COUNTER = 0
 HY_ALARM_ON = False
