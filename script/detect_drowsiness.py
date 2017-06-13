@@ -19,6 +19,28 @@ def sound_alarm(path):
 	# play an alarm sound
 	playsound.playsound(path)
 
+
+def get_iris(eye):
+	iris_pos = (eye[0]+eye[3])/2
+	iris_pos = [int(x) for x in iris_pos]
+	iris_pos = tuple(iris_pos)
+	print(iris_pos)
+	return iris_pos
+
+def draw_sight(iris_pos,xMoveRatio,yMoveRatio):
+	if xMoveRatio < 1:
+		xMoveRatio /=-1
+
+	if yMoveRatio < 1:
+		yMoveRatio /=-1
+
+	sight_x = int(iris_pos[0] + xMoveRatio**2*10)
+	sight_y = int(iris_pos[1] - yMoveRatio**2*2)
+
+	sight_pos = (sight_x,sight_y)
+
+	return sight_pos
+
 def eye_aspect_ratio(eye):
 	# compute the euclidean distances between the two sets of
 	# vertical eye landmarks (x, y)-coordinates
@@ -34,6 +56,16 @@ def eye_aspect_ratio(eye):
 
 	# return the eye aspect ratio
 	return ear
+
+
+def mouth_aspect_ratio():
+	# compute the width and height of mouth
+	width = dist.euclidean(shape[49], shape[55])
+	height = dist.euclidean(shape[52], shape[58])
+	mar = width/height
+
+	# return the eye aspect ratio
+	return mar
 
 """
 	Measure distance between any 2 given points on face
@@ -100,6 +132,41 @@ def eye_ratio_detect(COUNTER,ALARM_ON):
 
 				# draw an alarm on the frame
 				cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
+					cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+		# otherwise, the eye aspect ratio is not below the blink
+		# threshold, so reset the counter and alarm
+		else:
+			COUNTER = 0
+			ALARM_ON = False
+
+		return COUNTER,ALARM_ON
+
+
+def mouth_ratio_detect(COUNTER,ALARM_ON):
+		# check to see if the eye aspect ratio is below the blink
+		# threshold, and if so, increment the blink frame counter
+		if mar < MOUTH_AR_THRESH:
+			COUNTER += 1
+
+			# if the eyes were closed for a sufficient number of
+			# then sound the alarm
+			if COUNTER >= MOUTH_AR_CONSEC_FRAMES:
+				# if the alarm is not on, turn it on
+				if not ALARM_ON:
+					ALARM_ON = True
+
+					# check to see if an alarm file was supplied,
+					# and if so, start a thread to have the alarm
+					# sound played in the background
+					if args["alarm"] != "":
+						t = Thread(target=sound_alarm,
+							args=(args["alarm"],))
+						t.deamon = True
+						t.start()
+
+				# draw an alarm on the frame
+				cv2.putText(frame, "YARN ALERT!", (10, 30),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
 		# otherwise, the eye aspect ratio is not below the blink
@@ -206,8 +273,11 @@ args = vars(ap.parse_args())
 # blink and then a second constant for the number of consecutive
 # frames the eye must be below the threshold for to set off the
 # alarm
-EYE_AR_THRESH = 0.3
+EYE_AR_THRESH = 0.25
 EYE_AR_CONSEC_FRAMES = 48
+
+MOUTH_AR_THRESH = 1.0
+MOUTH_AR_CONSEC_FRAMES = 48
 
 # define three constants, one for the head y direction movement Lower Control Limit 
 # one for the head y direction movement Upper Control Limit 
@@ -237,6 +307,8 @@ X_CONSEC_FRAMES = 30
 # indicate if the alarm is going off
 COUNTER = 0
 ALARM_ON = False
+M_COUNTER = 0
+M_ALARM_ON = False
 
 # initialize the frame counter of head Y direction movement as well as a boolean used to
 # indicate if the alarm is going off
@@ -309,9 +381,12 @@ while True:
 
 		leftEAR = eye_aspect_ratio(leftEye)
 		rightEAR = eye_aspect_ratio(rightEye)
+		lIris = get_iris(leftEye)
+		rIris = get_iris(rightEye)
 		# average the eye aspect ratio together for both eyes
 		ear = (leftEAR + rightEAR) / 2.0
 		xMoveRatio, yMoveRatio = head_x_y_move()
+		mar = mouth_aspect_ratio()
 
 		if FIRST5_FRAME <= 5:
 
@@ -335,11 +410,15 @@ while True:
 
 			FIRST5_FRAME+=1
 
+		
+
 		COUNTER,ALARM_ON = eye_ratio_detect(COUNTER,ALARM_ON)
 		if ~ALARM_ON: 
 			HY_COUNTER,HY_ALARM_ON = head_y_turn_detect(HY_COUNTER,HY_ALARM_ON)
-		if ~ALARM_ON and ~HY_ALARM_ON:
+		if ~ALARM_ON or ~HY_ALARM_ON:
 			HX_COUNTER,HX_ALARM_ON = head_x_turn_detect(HX_COUNTER,HX_ALARM_ON)
+		if ~ALARM_ON or ~HY_ALARM_ON or ~HX_ALARM_ON:
+		    M_COUNTER,M_ALARM_ON = 	mouth_ratio_detect(M_COUNTER,M_ALARM_ON)
 
 		# compute the convex hull for the left and right eye, then
 		# visualize each of the eyes
@@ -351,13 +430,16 @@ while True:
 		jawHull = cv2.convexHull(jaw)
 		mouthHull = cv2.convexHull(mouth)
 
-		cv2.drawContours(frame, [leftEyeHull], -1, (179,66,244), 2)
-		cv2.drawContours(frame, [rightEyeHull], -1, (179,66,244), 2)
+		cv2.drawContours(frame, [leftEyeHull], -1, (179,66,244), 1)
+		cv2.drawContours(frame, [rightEyeHull], -1, (179,66,244), 1)
 		cv2.rectangle(frame, (x, y), (x + w, y + h), (200,244,66), 2)
 		# cv2.drawContours(frame, [leftEarHull], -1, (0, 255, 0), 1)
 		# cv2.drawContours(frame, [rightEarHull], -1, (0, 255, 0), 1)
-		# cv2.drawContours(frame, [nose], -1, (0, 255, 0), 1)
-		# cv2.drawContours(frame, [mouth], -1, (0, 255, 0), 1)
+		cv2.drawContours(frame, [nose], -1, (179,66,244), 1)
+		cv2.drawContours(frame, [mouth], -1, (179,66,244), 1)
+		cv2.line(frame,lIris,draw_sight(lIris,xMoveRatio,yMoveRatio),(255,0,0),1)
+		cv2.line(frame,rIris,draw_sight(rIris,xMoveRatio,yMoveRatio),(255,0,0),1)
+		#cv2.line(frame,(0,0),(100,100),(255,0,0),1)
 		# cv2.drawContours(frame, [jaw], -1, (0, 255, 0), 1)
 		#draw_facepoint(33,35)
 		#draw_facepoint(8,10)
@@ -365,7 +447,7 @@ while True:
 		# draw the computed eye aspect ratio on the frame to help
 		# with debugging and setting the correct eye aspect ratio
 		# thresholds and frame counters
-		cv2.putText(frame, "EAR: {:.2f}".format(ear), (300, 30),
+		cv2.putText(frame, "MAR: {:.2f}".format(mar), (300, 30),
 			cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
  
 	# show the frame
