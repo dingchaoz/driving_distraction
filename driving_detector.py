@@ -455,33 +455,30 @@ class Detector(object):
             cv2.putText(self.frame, facename, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
 
                  
-                
-
-        return facename
 
 
-    def draw_name(self,facename,rect):
+    # def draw_name(self,facename,rect):
 
-        # Get the face rectangular 
-        (x, y, w, h) = face_utils.rect_to_bb(rect)
+    #     # Get the face rectangular 
+    #     (x, y, w, h) = face_utils.rect_to_bb(rect)
 
-        print (x,y,w,h)
+    #     print (x,y,w,h)
 
-        left,top,right,bottom = x,y,x+w,y+h
+    #     left,top,right,bottom = x,y,x+w,y+h
 
-        if facename == 'unauthorized driver':
-            box_color = (179,66,244)
-        else:
-            box_color = (66,226,244)
+    #     if facename == 'unauthorized driver':
+    #         box_color = (179,66,244)
+    #     else:
+    #         box_color = (66,226,244)
 
-        #cv2.rectangle(self.frame, (x, y), (x + w, y + h), EYE_RGB, 1)
-        # Draw a box around the face
-        cv2.rectangle(self.frame, (left, top), (right, bottom), box_color, 1)
+    #     #cv2.rectangle(self.frame, (x, y), (x + w, y + h), EYE_RGB, 1)
+    #     # Draw a box around the face
+    #     cv2.rectangle(self.frame, (left, top), (right, bottom), box_color, 1)
 
-        # Draw a label with a name below the face
-        cv2.rectangle(self.frame, (left, bottom - 5), (right, bottom), box_color, cv2.FILLED)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(self.frame, facename, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+    #     # Draw a label with a name below the face
+    #     cv2.rectangle(self.frame, (left, bottom - 5), (right, bottom), box_color, cv2.FILLED)
+    #     font = cv2.FONT_HERSHEY_DUPLEX
+    #     cv2.putText(self.frame, facename, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
 
 
 
@@ -499,7 +496,7 @@ class Detector(object):
             # array
             shape = face_utils.shape_to_np( self.shape_predictor(self.gray_frame, rect) )
 
-            facename = self.face_match()
+            self.face_match()
             #self.draw_name(facename,rect)
 
             
