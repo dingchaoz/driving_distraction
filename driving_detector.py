@@ -522,14 +522,14 @@ class Detector(object):
 
         try: 
             return (ear, self.EAR_ALARM_ON, \
-                    mar, self.MAR_ALARM_ON,\
                     yMoveRatio, self.HY_ALARM_ON, \
-                    xMoveRatio, self.HX_ALARM_ON)
+                    xMoveRatio, self.HX_ALARM_ON, \
+                    mar, self.MAR_ALARM_ON)
         except:
             return (None, self.EAR_ALARM_ON, \
-                    None, self.MAR_ALARM_ON,\
                     None, self.HY_ALARM_ON, \
-                    None, self.HX_ALARM_ON)
+                    None, self.HX_ALARM_ON, \
+                    None, self.MAR_ALARM_ON)
 
 
 

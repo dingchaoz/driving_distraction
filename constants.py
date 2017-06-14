@@ -58,13 +58,13 @@ FIRST5_FRAME = 0
 
 
 
-kface1_image = face_recognition.load_image_file("obama1.jpg")
+kface1_image = face_recognition.load_image_file("./resource/obama1.jpg")
 kface1_face_encoding = face_recognition.face_encodings(kface1_image)[0]
-kface2_image = face_recognition.load_image_file("profile.jpg")
+kface2_image = face_recognition.load_image_file("./resource/profile.jpg")
 kface2_face_encoding = face_recognition.face_encodings(kface2_image)[0]
-kface3_image = face_recognition.load_image_file("brad_pitt.jpg")
+kface3_image = face_recognition.load_image_file("./resource/brad_pitt.jpg")
 kface3_face_encoding = face_recognition.face_encodings(kface3_image)[0]
-kface4_image = face_recognition.load_image_file("biden1.jpg")
+kface4_image = face_recognition.load_image_file("./resource/biden1.jpg")
 kface4_face_encoding = face_recognition.face_encodings(kface4_image)[0]
 
 

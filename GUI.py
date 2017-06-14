@@ -149,7 +149,7 @@ class GUI(object):
     def update_status(self, status):
         '''
         Update driver status in the display frame
-        status: (ear, drowsiness, yMove, yDistraction, xMove, xDistraction)
+        status: (ear, drowsiness, yMove, yDistraction, xMove, xDistraction, mar, mouth_drowsiness)
         '''
         self.EAR_msg.set('{:.2f}\n'.format(status[0] or 0))
         self.head_msg.set('Y Ratio: {:.2f}\nX Ratio: {:.2f}'.format(status[2] or 0, status[4] or 0))
