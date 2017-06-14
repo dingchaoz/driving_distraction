@@ -10,6 +10,7 @@ from imutils import face_utils
 from threading import Thread
 import numpy as np
 from playsound import playsound
+import speech_recognition as sr
 import argparse
 import imutils
 import time
@@ -282,6 +283,32 @@ class Detector(object):
             self.HY_ALARM_ON = False
 
 
+    def calibrate(self,FIRST5_FRAME,xMoveRatio,yMoveRatio):      
+
+        if FIRST5_FRAME <= 5:
+
+                x_lcl = xMoveRatio*0.5
+                x_ucl = xMoveRatio*2
+
+                y_lcl = yMoveRatio*.8
+                y_ucl = yMoveRatio*1.25
+
+                X_LCL_ARR.append(x_lcl)
+                X_UCL_ARR.append(x_ucl)
+                Y_LCL_ARR.append(y_lcl)
+                Y_UCL_ARR.append(y_ucl)
+
+                X_LCL = np.mean(X_LCL_ARR)
+                X_UCL = np.mean(X_UCL_ARR)
+                Y_LCL = np.mean(Y_LCL_ARR)
+                Y_UCL = np.mean(Y_UCL_ARR)
+
+                print(X_UCL,X_LCL,Y_UCL,Y_LCL)
+
+                FIRST5_FRAME+=1
+
+
+
     def analyze_frame(self):
         '''
         process the current frame, detect its face components and decide if drowsiness/distraction is present
@@ -329,11 +356,11 @@ class Detector(object):
             #self.draw_facepoint(shape, 33, 35)
             #self.draw_facepoint(shape, 8, 10)
 
-
+            
             ear = self.eye_aspect_ratio(leftEye, rightEye)
             mar = self.mouth_aspect_ratio(shape)
             xMoveRatio, yMoveRatio = self.head_x_y_move(shape)
-           
+            self.calibrate(FIRST5_FRAME,xMoveRatio,yMoveRatio)
          
             self.eye_ratio_detect(ear, shape)
             self.mouth_ratio_detect(mar,shape)            
