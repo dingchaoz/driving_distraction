@@ -1,4 +1,4 @@
-
+import face_recognition
 from imutils import face_utils
 # define two constants, one for the eye aspect ratio to indicate
 # blink and then a second constant for the number of consecutive
@@ -55,3 +55,21 @@ FIRST5_FRAME = 0
 (nStart, nEnd) = face_utils.FACIAL_LANDMARKS_IDXS["nose"]
 (mStart, mEnd) = face_utils.FACIAL_LANDMARKS_IDXS["mouth"]
 (jStart, jEnd) = face_utils.FACIAL_LANDMARKS_IDXS["jaw"]
+
+
+
+kface1_image = face_recognition.load_image_file("obama1.jpg")
+kface1_face_encoding = face_recognition.face_encodings(kface1_image)[0]
+kface2_image = face_recognition.load_image_file("profile.jpg")
+kface2_face_encoding = face_recognition.face_encodings(kface2_image)[0]
+kface3_image = face_recognition.load_image_file("brad_pitt.jpg")
+kface3_face_encoding = face_recognition.face_encodings(kface3_image)[0]
+
+
+known_faces = [
+    kface1_face_encoding,
+    kface2_face_encoding,
+    kface3_face_encoding,
+]
+
+know_faces_names = ['Obama','Dingchao','Dingchao, you look much handsome now']

@@ -374,8 +374,8 @@ class Detector(object):
         cv2.line(self.frame,tuple(shape[45]),tuple(shape[33]),EYE_RGB,1)
         cv2.line(self.frame,tuple(shape[39]),tuple(shape[33]),EYE_RGB,1)
         cv2.line(self.frame,tuple(shape[42]),tuple(shape[33]),EYE_RGB,1)
-        cv2.line(self.frame,tuple(shape[31]),tuple(shape[33]),EYE_RGB,1)
-        cv2.line(self.frame,tuple(shape[33]),tuple(shape[35]),EYE_RGB,1)
+        # cv2.line(self.frame,tuple(shape[31]),tuple(shape[33]),EYE_RGB,1)
+        # cv2.line(self.frame,tuple(shape[33]),tuple(shape[35]),EYE_RGB,1)
 
 
     def mouth_areamtrix(self,shape):
@@ -398,23 +398,38 @@ class Detector(object):
 
     def cheek_areamtrix(self,shape):
 
-        # cv2.circle(self.frame,tuple(shape[48]),2,EYE_RGB,1)
-        # cv2.circle(self.frame,tuple(shape[54]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[0]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[16]),2,EYE_RGB,1)
         # cv2.circle(self.frame,tuple(shape[8]),2,EYE_RGB,1)
         # cv2.circle(self.frame,tuple(shape[4]),2,EYE_RGB,1)
         # cv2.circle(self.frame,tuple(shape[12]),2,EYE_RGB,1)
 
-        # cv2.line(self.frame,tuple(shape[48]),tuple(shape[33]),EYE_RGB,1)
-        # cv2.line(self.frame,tuple(shape[54]),tuple(shape[33]),EYE_RGB,1)
-        # cv2.line(self.frame,tuple(shape[48]),tuple(shape[8]),EYE_RGB,1)
-        # cv2.line(self.frame,tuple(shape[54]),tuple(shape[8]),EYE_RGB,1)
+
+        cv2.line(self.frame,tuple(shape[16]),tuple(shape[12]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[16]),tuple(shape[24]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[16]),tuple(shape[45]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[0]),tuple(shape[4]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[0]),tuple(shape[19]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[0]),tuple(shape[36]),EYE_RGB,1)
         cv2.line(self.frame,tuple(shape[4]),tuple(shape[31]),EYE_RGB,1)
         cv2.line(self.frame,tuple(shape[4]),tuple(shape[36]),EYE_RGB,1)
         cv2.line(self.frame,tuple(shape[12]),tuple(shape[35]),EYE_RGB,1)
         cv2.line(self.frame,tuple(shape[12]),tuple(shape[45]),EYE_RGB,1)
 
 
+    def face_match(self):
+        face_locations = face_recognition.face_locations(self.frame)
+        face_encodings = face_recognition.face_encodings(self.frame, face_locations)
 
+        for i in range(len(face_locations)):
+
+            face_encoding = face_encodings[i]
+            face_location = face_locations[i]
+             # See if the face is a match for the known face(s)
+            match = face_recognition.compare_faces(known_faces, face_encoding,tolerance = 0.6)
+            indices_match = np.where(match)[0]
+
+            print (match,indices_match)
 
 
 
@@ -456,7 +471,7 @@ class Detector(object):
             jawHull      = cv2.convexHull(jaw)
             mouthHull    = cv2.convexHull(mouth)
 
-            # cv2.rectangle(self.frame, (x, y), (x + w, y + h), (200,244,66), 2)
+            cv2.rectangle(self.frame, (x, y), (x + w, y + h), EYE_RGB, 1)
             ##cv2.drawContours(self.frame, [nose], -1, (179,66,244), 1)
             #cv2.drawContours(self.frame, [mouth], -1, (179,66,244), 1)
             #cv2.drawContours(self.frame, [leftEarHull], -1, (0, 255, 0), 1)
@@ -465,7 +480,7 @@ class Detector(object):
 
             #self.wuguan_outline(shape,leftEyeHull,rightEyeHull)
             
-
+            self.face_match()
 
             ear = self.eye_aspect_ratio(leftEye, rightEye)
             mar = self.mouth_aspect_ratio(shape)
