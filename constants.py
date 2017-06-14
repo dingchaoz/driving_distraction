@@ -5,10 +5,10 @@ from imutils import face_utils
 # frames the eye must be below the threshold for to set off the
 # alarm
 EYE_AR_THRESH = 0.25
-EYE_AR_CONSEC_FRAMES = 48
+EYE_AR_CONSEC_FRAMES = 6
 
 MOUTH_AR_THRESH = 1.0
-MOUTH_AR_CONSEC_FRAMES = 48
+MOUTH_AR_CONSEC_FRAMES = 6
 
 # define three constants, one for the head y direction movement Lower Control Limit 
 # one for the head y direction movement Upper Control Limit 
@@ -19,7 +19,7 @@ Y_LCL = None
 Y_UCL = None
 Y_LCL_ARR = []
 Y_UCL_ARR = []
-Y_CONSEC_FRAMES = 30
+Y_CONSEC_FRAMES = 5
 
 # define three constants, one for the head x direction movement Lower Control Limit 
 # one for the head x direction movement Upper Control Limit 
@@ -30,7 +30,7 @@ X_LCL = None
 X_UCL = None
 X_LCL_ARR = []
 X_UCL_ARR = []
-X_CONSEC_FRAMES = 30
+X_CONSEC_FRAMES = 5
 
 
 EYE_RGB = (244,66,137) # purple

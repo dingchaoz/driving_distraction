@@ -309,8 +309,8 @@ class Detector(object):
                 x_lcl = xMoveRatio*0.5
                 x_ucl = xMoveRatio*2
 
-                y_lcl = yMoveRatio*.8
-                y_ucl = yMoveRatio*1.25
+                y_lcl = yMoveRatio*.75
+                y_ucl = yMoveRatio*1.3
 
                 X_LCL_ARR.append(x_lcl)
                 X_UCL_ARR.append(x_ucl)
