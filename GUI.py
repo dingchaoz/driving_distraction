@@ -1,10 +1,13 @@
 from PIL import Image
 from PIL import ImageTk
 import tkinter as tk
-import threading
+from threading import Thread
 import imutils
 import cv2
 import os
+import speech_recognition as sr
+import logging
+
 
 class GUI(object):
 
@@ -95,9 +98,9 @@ class GUI(object):
         self.status_label.grid(row=0, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))
 
         self.status_msg = tk.StringVar()
-        self.status_msg.set('\nNORMAL!\n')
+        self.status_msg.set('\nNORMAL\n')
         self.status_box = tk.Message(self.displayFrame, textvariable=self.status_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5,
-                             fg='green', font=('Helvetica', 24, 'bold'))
+                             fg='green', font=('Helvetica', 20, 'bold'))
         self.status_box.grid(row=1, column=1, rowspan=2, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10), pady=(0, 10))
 
         # EAR Textbox
@@ -148,7 +151,7 @@ class GUI(object):
         Update driver status in the display frame
         status: (ear, drowsiness, yMove, yDistraction, xMove, xDistraction)
         '''
-        self.EAR_msg.set('{:.2f}'.format(status[0] or 0))
+        self.EAR_msg.set('{:.2f}\n'.format(status[0] or 0))
         self.head_msg.set('Y Ratio: {:.2f}\nX Ratio: {:.2f}'.format(status[2] or 0, status[4] or 0))
 
         if status[1]:
@@ -175,6 +178,37 @@ class GUI(object):
         self._root.quit()
 
 
+def voice_command(gui):
+    # for testing purposes, we're just using the default API key
+    GOOGLE_SPEECH_RECOGNITION_API_KEY = None
+
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        logger = logging.getLogger(__name__)
+
+        while True:
+            logger.debug("Awaiting user input.")
+            audio = r.listen(source)
+
+            logger.debug("Attempting to transcribe user input.")
+
+            try:
+                result = r.recognize_google(audio,
+                                            key=GOOGLE_SPEECH_RECOGNITION_API_KEY)
+
+                if result == 'start':
+                    gui.onStart()
+
+                elif result == 'stop':
+                    gui.onStop()
+
+            except sr.UnknownValueError:
+                logger.debug("Google Speech Recognition could not understand audio")
+            except sr.RequestError as e:
+                logger.warn("Could not request results from Google Speech Recognition service: %s", e)
+            except Exception as e:
+                logger.error("Could not process text: %s", e)
+
 
 
 if __name__ == '__main__':
@@ -185,6 +219,11 @@ if __name__ == '__main__':
     #vs = cv2.VideoCapture(0)
 
     myapp = GUI(root, vs)
+
+    t = Thread(target=voice_command,
+                args=(myapp,))
+    t.deamon = True
+    t.start()
 
     tk.mainloop()
 

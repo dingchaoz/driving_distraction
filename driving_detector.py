@@ -99,7 +99,7 @@ class Detector(object):
         xDiff = xMoveRatio - cal_xRatio
         yDiff = yMoveRatio - cal_yRatio
 
-        print(cal_xRatio,cal_yRatio,xDiff,yDiff)
+        #print(cal_xRatio,cal_yRatio,xDiff,yDiff)
 
         return xDiff,yDiff
 
@@ -326,7 +326,7 @@ class Detector(object):
                 #print('CALIBRATION',X_UCL_ARR)
 
                 FIRST5_FRAME+=1
-                print (FIRST5_FRAME)
+                #print (FIRST5_FRAME)
 
 
     def wuguan_outline(self,shape,leftEyeHull,rightEyeHull):
@@ -429,7 +429,7 @@ class Detector(object):
             match = face_recognition.compare_faces(known_faces, face_encoding,tolerance = 0.6)
             indices_match = np.where(match)[0]
 
-            print (match,indices_match)
+            #print (match,indices_match)
 
 
 
@@ -458,8 +458,6 @@ class Detector(object):
             jaw         = shape[jStart:jEnd]
             lIris = self.get_iris(leftEye)
             rIris = self.get_iris(rightEye)
-
-            print ('eye_rgb', EYE_RGB)
 
             # compute the convex hull for the left and right eye, then
             # visualize each of the eyes
