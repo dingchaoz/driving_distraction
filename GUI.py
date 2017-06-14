@@ -1,9 +1,7 @@
 from PIL import Image
 from PIL import ImageTk
-import speech_recognition as sr
 import tkinter as tk
 import threading
-import logging
 import imutils
 import cv2
 import os
@@ -25,7 +23,6 @@ class GUI(object):
 
         self.displayFrame = tk.Frame(self._root)
         self.displayFrame.grid(row = 1, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
-        self.logger = logging.getLogger(__name__)
 
         self._root.bind('<Escape>', lambda e: self.quit())
         self.createLogoFrame()
@@ -79,10 +76,9 @@ class GUI(object):
         
         self.video_label.imgtk = imgtk
         self.video_label.configure(image=imgtk)
+        self.update_status(status)
         self.displayFrame.update()
 
-        # update status in GUI
-        
 
         self.video_label.after(10, self.show_frame) 
 
@@ -109,7 +105,7 @@ class GUI(object):
         self.EAR_label.grid(row=3, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))
 
         self.EAR_msg = tk.StringVar()
-        self.EAR_msg.set('1.0')
+        self.EAR_msg.set('0')
         self.EAR_box = tk.Message(self.displayFrame, textvariable=self.EAR_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5)
         self.EAR_box.grid(row=4, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))        
 
@@ -118,7 +114,7 @@ class GUI(object):
         self.head_label.grid(row=5, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))        
 
         self.head_msg = tk.StringVar()
-        self.head_msg.set('V Ratio: \nH Ratio: ')
+        self.head_msg.set('Y Ratio: \nX Ratio: ')
         self.head_box = tk.Message(self.displayFrame, textvariable=self.head_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5)        
         self.head_box.grid(row=6, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10)) 
 
@@ -129,40 +125,6 @@ class GUI(object):
         # Stop Button
         self.stop_btn = tk.Button(self.displayFrame, text='STOP', command=self.onStop, font=('-weight bold'))
         self.stop_btn.grid(row=7, column=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(0, 10))
-
-
-    def voice_command(self):
-        # for testing purposes, we're just using the default API key
-        GOOGLE_SPEECH_RECOGNITION_API_KEY = None
-
-        r = sr.Recognizer()
-        with sr.Microphone() as source:
-
-            while True:
-                self.logger.debug("Awaiting user input.")
-                audio = r.listen(source)
-
-                self.logger.debug("Attempting to transcribe user input.")
-
-                try:
-                    result = r.recognize_google(audio,
-                                                key=GOOGLE_SPEECH_RECOGNITION_API_KEY)
-
-                    if result == 'start':
-                        self.onStart()
-
-                    elif result == 'stop':
-                        self.onStop()
-
-                except sr.UnknownValueError:
-                    self.logger.debug("Google Speech Recognition could not understand audio")
-                except sr.RequestError as e:
-                    self.logger.warn("Could not request results from Google Speech Recognition service: %s", e)
-                except Exception as e:
-                    self.logger.error("Could not process text: %s", e)
-
-
-
 
 
     def onStop(self):
@@ -181,20 +143,26 @@ class GUI(object):
         print('Video Streaming Started...')
 
 
-    def update_status(self, type=None):
+    def update_status(self, status):
         '''
         Update driver status in the display frame
-        type: 'drowsiness', 'distraction', None
+        status: (ear, drowsiness, yMove, yDistraction, xMove, xDistraction)
         '''
-        if type == 'drowsiness':
-            self.status_msg.set("Drowsiness ALERT!")
-            self.status_label.config(fg='red2')
-        elif type == 'distraction':
-            self.status_msg.set('Distraction ALERT!')
-            self.status_label.config(fg='dark orange')
+        self.EAR_msg.set('{:.2f}'.format(status[0] or 0))
+        self.head_msg.set('Y Ratio: {:.2f}\nX Ratio: {:.2f}'.format(status[2] or 0, status[4] or 0))
+
+        if status[1]:
+            self.status_msg.set("Drowsiness\nALERT!")
+            self.status_box.config(fg='red2')
+        elif status[3]:
+            self.status_msg.set('Y Distraction\nALERT!')
+            self.status_box.config(fg='dark orange')
+        elif status[5]:
+            self.status_msg.set('X Distraction\nALERT!')
+            self.status_box.config(fg='dark orange')
         else:
             self.status_msg.set('Normal')
-            self.status_label.config(fg='green3')
+            self.status_box.config(fg='green3')
 
 
     def quit(self):
@@ -217,8 +185,6 @@ if __name__ == '__main__':
     #vs = cv2.VideoCapture(0)
 
     myapp = GUI(root, vs)
-
-    #myapp.voice_command()
 
     tk.mainloop()
 
