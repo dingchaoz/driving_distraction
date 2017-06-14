@@ -39,7 +39,6 @@ class Detector(object):
         else:
             self.face_detector, self.shape_predictor = self.load_face_model(model_path) 
 
-
     def load_face_model(self, model_path):
 
         # initialize dlib's face face_detector (HOG-based) and then create
@@ -92,15 +91,29 @@ class Detector(object):
         
         return iris_pos
 
-    def draw_sight(self,iris_pos,xMoveRatio,yMoveRatio):
-        if xMoveRatio < 1:
-            xMoveRatio /=-1
 
-        if yMoveRatio < 1:
-            yMoveRatio /=-1
+    def xy_diff(self,xMoveRatio,yMoveRatio,X_LCL,X_UCL,Y_LCL,Y_UCL):
 
-        sight_x = int(iris_pos[0] + xMoveRatio**2*10)
-        sight_y = int(iris_pos[1] - yMoveRatio**2*2)
+        cal_xRatio = (X_LCL + X_UCL)/2
+        cal_yRatio = (Y_LCL + Y_UCL)/2
+        xDiff = xMoveRatio - cal_xRatio
+        yDiff = yMoveRatio - cal_yRatio
+
+        print(cal_xRatio,cal_yRatio,xDiff,yDiff)
+
+        return xDiff,yDiff
+
+    def draw_sight(self,iris_pos,xDiff,yDiff):
+ 
+        # if xMoveRatio < 1:
+        #     xMoveRatio = -1/xMoveRatio
+
+
+        # if yMoveRatio < 1:
+        #     yMoveRatio /=-1
+
+        sight_x = int(iris_pos[0] + xDiff*50)
+        sight_y = int(iris_pos[1] + yDiff*30)
 
         sight_pos = (sight_x,sight_y)
 
@@ -165,7 +178,7 @@ class Detector(object):
         xMoveRatio = nose2lface / nose2rface
         yMoveRatio = nose2jaw / nose2fhead
 
-        print('xMoveRatio: {}; yMoveRatio: {}'.format(xMoveRatio, yMoveRatio))
+        #print('xMoveRatio: {}; yMoveRatio: {}'.format(xMoveRatio, yMoveRatio))
 
         return xMoveRatio, yMoveRatio
     
@@ -230,7 +243,7 @@ class Detector(object):
 
 
 
-    def head_x_turn_detect(self, xMoveRatio, shape):
+    def head_x_turn_detect(self, xMoveRatio, X_LCL,X_UCL):
         # check to see if the head movement X ratio is below or above the X direction movement
         # threshold, and if so, increment the blink frame counter
         if xMoveRatio < X_LCL or xMoveRatio > X_UCL:
@@ -254,7 +267,7 @@ class Detector(object):
             self.HX_ALARM_ON = False
 
 
-    def head_y_turn_detect(self, yMoveRatio, shape):
+    def head_y_turn_detect(self, yMoveRatio, Y_LCL,Y_UCL):
         # check to see if the head movement Y ratio is below or above the Y direction movement
         # threshold, and if so, increment the blink frame counter
         if yMoveRatio < Y_LCL or yMoveRatio > Y_UCL:
@@ -303,9 +316,12 @@ class Detector(object):
                 Y_LCL = np.mean(Y_LCL_ARR)
                 Y_UCL = np.mean(Y_UCL_ARR)
 
-                print(X_UCL,X_LCL,Y_UCL,Y_LCL)
+                #print('CALIBRATION',X_UCL_ARR)
 
                 FIRST5_FRAME+=1
+                print (FIRST5_FRAME)
+
+        return X_UCL,X_LCL,Y_UCL,Y_LCL
 
 
 
@@ -360,15 +376,16 @@ class Detector(object):
             ear = self.eye_aspect_ratio(leftEye, rightEye)
             mar = self.mouth_aspect_ratio(shape)
             xMoveRatio, yMoveRatio = self.head_x_y_move(shape)
-            self.calibrate(FIRST5_FRAME,xMoveRatio,yMoveRatio)
-         
+            X_UCL,X_LCL,Y_UCL,Y_LCL = self.calibrate(FIRST5_FRAME,xMoveRatio,yMoveRatio)
+
             self.eye_ratio_detect(ear, shape)
             self.mouth_ratio_detect(mar,shape)            
-            self.head_y_turn_detect(yMoveRatio, shape)
-            self.head_x_turn_detect(xMoveRatio, shape)
+            self.head_y_turn_detect(yMoveRatio, Y_LCL,Y_UCL)
+            self.head_x_turn_detect(xMoveRatio, X_LCL,X_UCL)
+            xDiff,yDiff = self.xy_diff(xMoveRatio,yMoveRatio,X_LCL,X_UCL,Y_LCL,Y_UCL)
 
-            cv2.line(self.frame,lIris,self.draw_sight(lIris,xMoveRatio,yMoveRatio),(255,0,0),1)
-            cv2.line(self.frame,rIris,self.draw_sight(rIris,xMoveRatio,yMoveRatio),(255,0,0),1)
+            cv2.line(self.frame,lIris,self.draw_sight(lIris,xDiff,yDiff),(255,0,0),1)
+            cv2.line(self.frame,rIris,self.draw_sight(rIris,xDiff,yDiff),(255,0,0),1)
             
             cv2.putText(self.frame, "EAR: {:.2f}".format(ear), (300, 120),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)

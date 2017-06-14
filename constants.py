@@ -15,8 +15,8 @@ MOUTH_AR_CONSEC_FRAMES = 48
 # blink and then a second constant for the number of consecutive
 # frames the head must be outside of the control limits for to set off the
 # alarm
-Y_LCL = 0.8
-Y_UCL = 1.25
+Y_LCL = None
+Y_UCL = None
 Y_LCL_ARR = []
 Y_UCL_ARR = []
 Y_CONSEC_FRAMES = 30
@@ -26,8 +26,8 @@ Y_CONSEC_FRAMES = 30
 # and then a second constant for the number of consecutive
 # frames the head must be outside of the control limits for to set off the
 # alarm
-X_LCL = 0.5
-X_UCL = 1.6
+X_LCL = None
+X_UCL = None
 X_LCL_ARR = []
 X_UCL_ARR = []
 X_CONSEC_FRAMES = 30
