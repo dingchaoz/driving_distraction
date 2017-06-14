@@ -207,10 +207,10 @@ class Detector(object):
             # if the eyes were closed for a sufficient number of
             # then sound the alarm
             if self.EAR_COUNTER >= EYE_AR_CONSEC_FRAMES:
-                # if the alarm is not on, turn it on
-                if not self.EAR_ALARM_ON:
-                    self.EAR_ALARM_ON = True
-                    self.start_alarm('Hey Wake up')
+                #turn alarm on
+                self.EAR_ALARM_ON = True
+                if (self.EAR_COUNTER == EYE_AR_CONSEC_FRAMES) or (self.EAR_COUNTER == EYE_AR_CONSEC_FRAMES + 20):
+                    self.start_alarm('You look tired')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "DROWSINESS ALERT!", (10, 30),
@@ -231,10 +231,10 @@ class Detector(object):
             # if the eyes were closed for a sufficient number of
             # then sound the alarm
             if self.MAR_COUNTER >= MOUTH_AR_CONSEC_FRAMES:
-                # if the alarm is not on, turn it on
-                if not self.MAR_ALARM_ON:
-                    self.MAR_ALARM_ON = True
-                    self.start_alarm('Your mouth can fit an elepant')
+                # turn alarm on
+                self.MAR_ALARM_ON = True
+                if (self.MAR_COUNTER == MOUTH_AR_CONSEC_FRAMES) or (self.MAR_COUNTER == MOUTH_AR_CONSEC_FRAMES + 20):
+                    self.start_alarm('You look tired')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "YARN ALERT!", (10, 30),
@@ -256,10 +256,10 @@ class Detector(object):
             # if the eyes were closed for a sufficient number of
             # then sound the alarm
             if self.HX_COUNTER >= X_CONSEC_FRAMES:
-                # if the alarm is not on, turn it on
-                if not self.HX_ALARM_ON:
-                    self.HX_ALARM_ON = True
-                    self.start_alarm('Watch ahead please')
+                # turn alarm on
+                self.HX_ALARM_ON = True
+                if (self.HX_COUNTER == X_CONSEC_FRAMES) or (self.HX_COUNTER == X_CONSEC_FRAMES + 10):
+                    self.start_alarm('you are looking sideways')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "HEAD MOVEMENT X ALERT!", (10, 30),
@@ -281,14 +281,13 @@ class Detector(object):
             # if the eyes were closed for a sufficient number of
             # then sound the alarm
             if self.HY_COUNTER >= Y_CONSEC_FRAMES:
-                # if the alarm is not on, turn it on
-                if not self.HY_ALARM_ON:
-                    self.HY_ALARM_ON = True
+                # turn alarm on
+                self.HY_ALARM_ON = True
+                if (self.HY_COUNTER == Y_CONSEC_FRAMES) or (self.HY_COUNTER == Y_CONSEC_FRAMES + 10):
                     if yMoveRatio > Y_UCL:
-                        self.start_alarm('Are you staring at a flying pig ?')
+                        self.start_alarm('you are looking up')
                     if yMoveRatio < Y_LCL:
-                        self.start_alarm(' Did you notice an hundred dollar bill on the mat ?')
-
+                        self.start_alarm('you are looking downward')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "HEAD MOVEMENT Y ALERT!", (10, 30),
@@ -324,7 +323,7 @@ class Detector(object):
 
                 #print('CALIBRATION',X_UCL_ARR)
 
-                FIRST5_FRAME+=1
+                FIRST5_FRAME += 1
                 #print (FIRST5_FRAME)
 
 

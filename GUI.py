@@ -11,7 +11,7 @@ import logging
 
 class GUI(object):
 
-    def __init__(self, root, dt, vs, width=1000):
+    def __init__(self, root, dt, vs, width=800):
         '''
         Initialize the basic frames under the root window 
         '''
@@ -64,7 +64,7 @@ class GUI(object):
         if self._start == True:
             #_, frame = self._vs.read()
             #frame = cv2.flip(frame, 1)
-            self._dt.new_frame(self._vs.read(), width=int(self._frame_width*0.6))
+            self._dt.new_frame(cv2.flip(self._vs.read(), 1), width=int(self._frame_width*0.8))
             status = self._dt.analyze_frame()
             frame = self._dt.read()
             
@@ -100,34 +100,34 @@ class GUI(object):
         self.status_msg = tk.StringVar()
         self.status_msg.set('\nNORMAL\n')
         self.status_box = tk.Message(self.displayFrame, textvariable=self.status_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5,
-                             fg='green', font=('Helvetica', 20, 'bold'))
-        self.status_box.grid(row=1, column=1, rowspan=2, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10), pady=(0, 10))
+                             fg='green', font=('Helvetica', 20, 'bold'), width=500)
+        self.status_box.grid(row=1, column=1, rowspan=3, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10), pady=(0, 10))
 
         # EAR Textbox
         self.EAR_label = tk.Label(self.displayFrame, text='Eye Aspect Ratio', font=('-weight bold'))
-        self.EAR_label.grid(row=3, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))
+        self.EAR_label.grid(row=4, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))
 
         self.EAR_msg = tk.StringVar()
         self.EAR_msg.set('0')
         self.EAR_box = tk.Message(self.displayFrame, textvariable=self.EAR_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5)
-        self.EAR_box.grid(row=4, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))        
+        self.EAR_box.grid(row=5, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))        
 
         # Head Position
         self.head_label = tk.Label(self.displayFrame, text='Head Position', font=('-weight bold'))
-        self.head_label.grid(row=5, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))        
+        self.head_label.grid(row=6, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))        
 
         self.head_msg = tk.StringVar()
         self.head_msg.set('Y Ratio: \nX Ratio: ')
         self.head_box = tk.Message(self.displayFrame, textvariable=self.head_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5)        
-        self.head_box.grid(row=6, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10)) 
+        self.head_box.grid(row=7, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10)) 
 
         # Start Button
         self.start_btn = tk.Button(self.displayFrame, text='START', command=self.onStart, font=('-weight bold'))
-        self.start_btn.grid(row=7, column=1, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 0))
+        self.start_btn.grid(row=8, column=1, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 0))
 
         # Stop Button
         self.stop_btn = tk.Button(self.displayFrame, text='STOP', command=self.onStop, font=('-weight bold'))
-        self.stop_btn.grid(row=7, column=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(0, 10))
+        self.stop_btn.grid(row=8, column=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(0, 10))
 
 
     def onStop(self):
