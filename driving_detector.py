@@ -183,11 +183,10 @@ class Detector(object):
         return xMoveRatio, yMoveRatio
 
 
-    def connect_facepoint(self,shape,pos1,pos2):
+    def connect_facepoint(self,shape,pos1,pos2,rgb = (255,0,0)):
         for pos in range(pos1,pos2):
-            print (pos)
 
-            cv2.line(self.frame,tuple(shape[pos]),tuple(shape[pos+1]),(255,0,0),1)
+            cv2.line(self.frame,tuple(shape[pos]),tuple(shape[pos+1]),rgb,1)
     
 
     def draw_facepoint(self, shape, pos1, pos2):
@@ -330,6 +329,94 @@ class Detector(object):
                 print (FIRST5_FRAME)
 
 
+    def wuguan_outline(self,shape,leftEyeHull,rightEyeHull):
+        # Draw eye brow outlines
+        self.connect_facepoint(shape,17,21,EYE_RGB)
+        self.connect_facepoint(shape,22,26,EYE_RGB)
+        # Draw mouth outline
+        self.connect_facepoint(shape,48,60,EYE_RGB)
+        # Draw face outline
+        self.connect_facepoint(shape,0,16,EYE_RGB)
+        # Draw nose outline
+        self.connect_facepoint(shape,27,30,EYE_RGB)
+        self.connect_facepoint(shape,31,35,EYE_RGB)
+        # Draw eye outline
+        cv2.drawContours(self.frame, [leftEyeHull], -1, EYE_RGB, 1)
+        cv2.drawContours(self.frame, [rightEyeHull], -1, EYE_RGB, 1)
+
+
+    def eye_areamtrix(self,shape):
+
+        cv2.circle(self.frame,tuple(shape[36]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[19]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[39]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[42]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[24]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[45]),2,EYE_RGB,1)
+
+        cv2.line(self.frame,tuple(shape[36]),tuple(shape[19]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[36]),tuple(shape[39]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[19]),tuple(shape[39]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[39]),tuple(shape[42]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[42]),tuple(shape[24]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[19]),tuple(shape[24]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[24]),tuple(shape[45]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[42]),tuple(shape[45]),EYE_RGB,1)
+
+
+    def eye2nose_areamtrix(self,shape):
+
+        cv2.circle(self.frame,tuple(shape[33]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[31]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[35]),2,EYE_RGB,1)
+
+        cv2.line(self.frame,tuple(shape[36]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[45]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[39]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[42]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[31]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[33]),tuple(shape[35]),EYE_RGB,1)
+
+
+    def mouth_areamtrix(self,shape):
+
+        cv2.circle(self.frame,tuple(shape[48]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[54]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[8]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[4]),2,EYE_RGB,1)
+        cv2.circle(self.frame,tuple(shape[12]),2,EYE_RGB,1)
+
+        cv2.line(self.frame,tuple(shape[48]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[54]),tuple(shape[33]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[48]),tuple(shape[8]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[54]),tuple(shape[8]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[4]),tuple(shape[8]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[4]),tuple(shape[48]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[12]),tuple(shape[8]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[12]),tuple(shape[54]),EYE_RGB,1)
+
+
+    def cheek_areamtrix(self,shape):
+
+        # cv2.circle(self.frame,tuple(shape[48]),2,EYE_RGB,1)
+        # cv2.circle(self.frame,tuple(shape[54]),2,EYE_RGB,1)
+        # cv2.circle(self.frame,tuple(shape[8]),2,EYE_RGB,1)
+        # cv2.circle(self.frame,tuple(shape[4]),2,EYE_RGB,1)
+        # cv2.circle(self.frame,tuple(shape[12]),2,EYE_RGB,1)
+
+        # cv2.line(self.frame,tuple(shape[48]),tuple(shape[33]),EYE_RGB,1)
+        # cv2.line(self.frame,tuple(shape[54]),tuple(shape[33]),EYE_RGB,1)
+        # cv2.line(self.frame,tuple(shape[48]),tuple(shape[8]),EYE_RGB,1)
+        # cv2.line(self.frame,tuple(shape[54]),tuple(shape[8]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[4]),tuple(shape[31]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[4]),tuple(shape[36]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[12]),tuple(shape[35]),EYE_RGB,1)
+        cv2.line(self.frame,tuple(shape[12]),tuple(shape[45]),EYE_RGB,1)
+
+
+
+
+
 
 
     def analyze_frame(self):
@@ -357,6 +444,8 @@ class Detector(object):
             lIris = self.get_iris(leftEye)
             rIris = self.get_iris(rightEye)
 
+            print ('eye_rgb', EYE_RGB)
+
             # compute the convex hull for the left and right eye, then
             # visualize each of the eyes
             leftEyeHull  = cv2.convexHull(leftEye)
@@ -366,29 +455,17 @@ class Detector(object):
             noseHull     = cv2.convexHull(nose)
             jawHull      = cv2.convexHull(jaw)
             mouthHull    = cv2.convexHull(mouth)
-            cv2.drawContours(self.frame, [leftEyeHull], -1, (0, 255, 0), 1)
-            cv2.drawContours(self.frame, [rightEyeHull], -1, (0, 255, 0), 1)
-            cv2.rectangle(self.frame, (x, y), (x + w, y + h), (200,244,66), 2)
+
+            # cv2.rectangle(self.frame, (x, y), (x + w, y + h), (200,244,66), 2)
             ##cv2.drawContours(self.frame, [nose], -1, (179,66,244), 1)
             #cv2.drawContours(self.frame, [mouth], -1, (179,66,244), 1)
             #cv2.drawContours(self.frame, [leftEarHull], -1, (0, 255, 0), 1)
             #cv2.drawContours(self.frame, [rightEarHull], -1, (0, 255, 0), 1)
             #cv2.drawContours(self.frame, [jaw], -1, (0, 255, 0), 1)
 
+            #self.wuguan_outline(shape,leftEyeHull,rightEyeHull)
+            
 
-            # Draw eye brow outlines
-            self.connect_facepoint(shape,17,21)
-            self.connect_facepoint(shape,22,26)
-            # Draw mouth outline
-            self.connect_facepoint(shape,48,60)
-            # Draw face outline
-            self.connect_facepoint(shape,0,16)
-            # Draw nose outline
-            self.connect_facepoint(shape,27,30)
-            self.connect_facepoint(shape,31,35)
-            # Draw eye outline
-            # self.connect_facepoint(shape,36,40)
-            # self.connect_facepoint(shape,42,48)
 
             ear = self.eye_aspect_ratio(leftEye, rightEye)
             mar = self.mouth_aspect_ratio(shape)
@@ -401,20 +478,25 @@ class Detector(object):
             self.head_x_turn_detect(xMoveRatio, X_LCL,X_UCL)
             xDiff,yDiff = self.xy_diff(xMoveRatio,yMoveRatio,X_LCL,X_UCL,Y_LCL,Y_UCL)
 
-            cv2.line(self.frame,lIris,self.draw_sight(lIris,xDiff,yDiff),(255,0,0),1)
-            cv2.line(self.frame,rIris,self.draw_sight(rIris,xDiff,yDiff),(255,0,0),1)
-            
-            cv2.putText(self.frame, "EAR: {:.2f}".format(ear), (300, 120),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            self.eye_areamtrix(shape)
+            self.eye2nose_areamtrix(shape)
+            self.mouth_areamtrix(shape)
+            self.cheek_areamtrix(shape)
 
-            cv2.putText(self.frame, "MAR: {:.2f}".format(mar), (300, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-
-            cv2.putText(self.frame, "X: {:.2f}".format(xMoveRatio), (300, 60),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)                  
+            cv2.line(self.frame,lIris,self.draw_sight(lIris,xDiff,yDiff),SIGHT_RGB,1)
+            cv2.line(self.frame,rIris,self.draw_sight(rIris,xDiff,yDiff),SIGHT_RGB,1)
             
-            cv2.putText(self.frame, "Y: {:.2f}".format(yMoveRatio), (300, 90),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            # cv2.putText(self.frame, "EAR: {:.2f}".format(ear), (300, 120),
+            #     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+            # cv2.putText(self.frame, "MAR: {:.2f}".format(mar), (300, 30),
+            #     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+
+            # cv2.putText(self.frame, "X: {:.2f}".format(xMoveRatio), (300, 60),
+            #     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)                  
+            
+            # cv2.putText(self.frame, "Y: {:.2f}".format(yMoveRatio), (300, 90),
+            #     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         try: 
             return (ear, self.EAR_ALARM_ON, \

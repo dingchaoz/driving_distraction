@@ -33,6 +33,16 @@ X_UCL_ARR = []
 X_CONSEC_FRAMES = 30
 
 
+EYE_RGB = (244,66,137) # purple
+SIGHT_RGB = (244,226,65) # light blue
+
+# EYE_RGB = (65,74,244) # orange
+# SIGHT_RGB = (163,161,135) # grey
+
+# EYE_RGB = (52,4,224) # red
+# SIGHT_RGB = (239,200,4) # light blue
+
+
 # count the first 5 frame
 FIRST5_FRAME = 0
 
