@@ -420,6 +420,8 @@ class Detector(object):
         face_locations = face_recognition.face_locations(self.frame)
         face_encodings = face_recognition.face_encodings(self.frame, face_locations)
 
+        facename = 'unauthorized driver'
+
         for i in range(len(face_locations)):
 
             #print (len(face_locations))
@@ -434,9 +436,53 @@ class Detector(object):
             print ('indice_match',indices_match)
             if indices_match >= 0:
                 
-                print (know_faces_names[indices_match[0]])
+                facename = know_faces_names[indices_match[0]]
+
+            top, right, bottom, left = face_location
+
+            if facename == 'unauthorized driver':
+                box_color = (179,66,244)
             else:
-                 print ('unknown face')
+                box_color = (66,226,244)
+
+            #cv2.rectangle(self.frame, (x, y), (x + w, y + h), EYE_RGB, 1)
+            # Draw a box around the face
+            cv2.rectangle(self.frame, (left, top), (right, bottom), box_color, 1)
+
+            # Draw a label with a name below the face
+            cv2.rectangle(self.frame, (left, bottom - 5), (right, bottom), box_color, cv2.FILLED)
+            font = cv2.FONT_HERSHEY_DUPLEX
+            cv2.putText(self.frame, facename, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+
+                 
+                
+
+        return facename
+
+
+    def draw_name(self,facename,rect):
+
+        # Get the face rectangular 
+        (x, y, w, h) = face_utils.rect_to_bb(rect)
+
+        print (x,y,w,h)
+
+        left,top,right,bottom = x,y,x+w,y+h
+
+        if facename == 'unauthorized driver':
+            box_color = (179,66,244)
+        else:
+            box_color = (66,226,244)
+
+        #cv2.rectangle(self.frame, (x, y), (x + w, y + h), EYE_RGB, 1)
+        # Draw a box around the face
+        cv2.rectangle(self.frame, (left, top), (right, bottom), box_color, 1)
+
+        # Draw a label with a name below the face
+        cv2.rectangle(self.frame, (left, bottom - 5), (right, bottom), box_color, cv2.FILLED)
+        font = cv2.FONT_HERSHEY_DUPLEX
+        cv2.putText(self.frame, facename, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+
 
 
 
@@ -453,10 +499,10 @@ class Detector(object):
             # array
             shape = face_utils.shape_to_np( self.shape_predictor(self.gray_frame, rect) )
 
-            self.face_match()
+            facename = self.face_match()
+            #self.draw_name(facename,rect)
 
-            # Get the face rectangular 
-            (x, y, w, h) = face_utils.rect_to_bb(rect)
+            
 
             leftEye     = shape[lStart:lEnd]
             rightEye    = shape[rStart:rEnd]
@@ -478,7 +524,7 @@ class Detector(object):
             jawHull      = cv2.convexHull(jaw)
             mouthHull    = cv2.convexHull(mouth)
 
-            cv2.rectangle(self.frame, (x, y), (x + w, y + h), EYE_RGB, 1)
+            
             ##cv2.drawContours(self.frame, [nose], -1, (179,66,244), 1)
             #cv2.drawContours(self.frame, [mouth], -1, (179,66,244), 1)
             #cv2.drawContours(self.frame, [leftEarHull], -1, (0, 255, 0), 1)
@@ -530,6 +576,9 @@ class Detector(object):
                     None, self.HY_ALARM_ON, \
                     None, self.HX_ALARM_ON, \
                     None, self.MAR_ALARM_ON)
+
+
+
 
 
 
