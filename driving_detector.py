@@ -57,12 +57,11 @@ class Detector(object):
         # and if so, start a thread to have the alarm
         # sound played in the background
 
-        # if self.alarm_path is not None:
-        #     t = Thread(target=playsound,
-        #         args=(self.alarm_path,))
-        #     t.deamon = True
-        #     t.start()
-        os.system('say -v Victoria ' + message)
+        if self.alarm_path is not None:
+            t = Thread(target=os.system,
+                args=('say -v Victoria ' + message,))
+            t.deamon = True
+            t.start()
 
         return
 
@@ -91,6 +90,7 @@ class Detector(object):
         iris_pos = tuple(iris_pos)
         
         return iris_pos
+
 
     def draw_sight(self,iris_pos,xMoveRatio,yMoveRatio):
         if xMoveRatio < 1:

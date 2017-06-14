@@ -95,9 +95,9 @@ class GUI(object):
         self.status_label.grid(row=0, column=1, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10))
 
         self.status_msg = tk.StringVar()
-        self.status_msg.set('\nNORMAL!\n')
+        self.status_msg.set('\nNORMAL\n')
         self.status_box = tk.Message(self.displayFrame, textvariable=self.status_msg, relief=tk.GROOVE, justify=tk.CENTER, padx=5,
-                             fg='green', font=('Helvetica', 24, 'bold'))
+                             fg='green', font=('Helvetica', 20, 'bold'))
         self.status_box.grid(row=1, column=1, rowspan=2, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(10, 10), pady=(0, 10))
 
         # EAR Textbox
@@ -148,7 +148,7 @@ class GUI(object):
         Update driver status in the display frame
         status: (ear, drowsiness, yMove, yDistraction, xMove, xDistraction)
         '''
-        self.EAR_msg.set('{:.2f}'.format(status[0] or 0))
+        self.EAR_msg.set('{:.2f}\n'.format(status[0] or 0))
         self.head_msg.set('Y Ratio: {:.2f}\nX Ratio: {:.2f}'.format(status[2] or 0, status[4] or 0))
 
         if status[1]:
