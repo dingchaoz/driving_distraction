@@ -15,8 +15,8 @@ MOUTH_AR_CONSEC_FRAMES = 48
 # blink and then a second constant for the number of consecutive
 # frames the head must be outside of the control limits for to set off the
 # alarm
-Y_LCL = 0.8
-Y_UCL = 1.25
+Y_LCL = None
+Y_UCL = None
 Y_LCL_ARR = []
 Y_UCL_ARR = []
 Y_CONSEC_FRAMES = 30
@@ -26,11 +26,21 @@ Y_CONSEC_FRAMES = 30
 # and then a second constant for the number of consecutive
 # frames the head must be outside of the control limits for to set off the
 # alarm
-X_LCL = 0.5
-X_UCL = 1.6
+X_LCL = None
+X_UCL = None
 X_LCL_ARR = []
 X_UCL_ARR = []
 X_CONSEC_FRAMES = 30
+
+
+EYE_RGB = (244,66,137) # purple
+SIGHT_RGB = (244,226,65) # light blue
+
+# EYE_RGB = (65,74,244) # orange
+# SIGHT_RGB = (163,161,135) # grey
+
+# EYE_RGB = (52,4,224) # red
+# SIGHT_RGB = (239,200,4) # light blue
 
 
 # count the first 5 frame
