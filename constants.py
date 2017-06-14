@@ -64,12 +64,15 @@ kface2_image = face_recognition.load_image_file("profile.jpg")
 kface2_face_encoding = face_recognition.face_encodings(kface2_image)[0]
 kface3_image = face_recognition.load_image_file("brad_pitt.jpg")
 kface3_face_encoding = face_recognition.face_encodings(kface3_image)[0]
+kface4_image = face_recognition.load_image_file("biden1.jpg")
+kface4_face_encoding = face_recognition.face_encodings(kface4_image)[0]
 
 
 known_faces = [
     kface1_face_encoding,
     kface2_face_encoding,
     kface3_face_encoding,
+    kface4_face_encoding
 ]
 
-know_faces_names = ['Obama','Dingchao','Dingchao, you look much handsome now']
+know_faces_names = ['Obama','Dingchao','Dingchao, you look much handsome now','Yuntao']

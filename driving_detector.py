@@ -423,13 +423,21 @@ class Detector(object):
 
         for i in range(len(face_locations)):
 
+            #print (len(face_locations))
+
             face_encoding = face_encodings[i]
             face_location = face_locations[i]
              # See if the face is a match for the known face(s)
             match = face_recognition.compare_faces(known_faces, face_encoding,tolerance = 0.6)
-            indices_match = np.where(match)[0]
+            
 
-            #print (match,indices_match)
+            indices_match = np.where(match)[0]
+            print ('indice_match',indices_match)
+            if indices_match >= 0:
+                
+                print (know_faces_names[indices_match[0]])
+            else:
+                 print ('unknown face')
 
 
 
@@ -445,6 +453,8 @@ class Detector(object):
             # convert the facial landmark (x, y)-coordinates to a NumPy
             # array
             shape = face_utils.shape_to_np( self.shape_predictor(self.gray_frame, rect) )
+
+            self.face_match()
 
             # Get the face rectangular 
             (x, y, w, h) = face_utils.rect_to_bb(rect)
@@ -478,7 +488,7 @@ class Detector(object):
 
             #self.wuguan_outline(shape,leftEyeHull,rightEyeHull)
             
-            self.face_match()
+            
 
             ear = self.eye_aspect_ratio(leftEye, rightEye)
             mar = self.mouth_aspect_ratio(shape)
