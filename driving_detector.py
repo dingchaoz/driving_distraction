@@ -29,8 +29,8 @@ class Detector(object):
         self.gray_frame = None
         self.rects      = None
 
-        self.EAR_COUNTER, self.HY_COUNTER, self.HX_COUNTER      = (0, 0, 0)
-        self.EAR_ALARM_ON, self.HY_ALARM_ON, self.HX_ALARM_ON   = (False, False, False)
+        self.EAR_COUNTER, self.HY_COUNTER, self.HX_COUNTER,self.MAR_COUNTER  = (0, 0, 0,0)
+        self.EAR_ALARM_ON, self.HY_ALARM_ON, self.HX_ALARM_ON ,self.MAR_ALARM_ON  = (False, False, False,False)
 
         if model_path is None:
             self.face_detector, self.shape_predictor = self.load_face_model('./resource/shape_predictor_68_face_landmarks.dat')
@@ -80,6 +80,29 @@ class Detector(object):
         return self.frame
 
 
+    def get_iris(self,eye):
+
+        iris_pos = (eye[0]+eye[3])/2
+        iris_pos = [int(x) for x in iris_pos]
+        iris_pos = tuple(iris_pos)
+        
+        return iris_pos
+
+    def draw_sight(self,iris_pos,xMoveRatio,yMoveRatio):
+        if xMoveRatio < 1:
+            xMoveRatio /=-1
+
+        if yMoveRatio < 1:
+            yMoveRatio /=-1
+
+        sight_x = int(iris_pos[0] + xMoveRatio**2*10)
+        sight_y = int(iris_pos[1] - yMoveRatio**2*2)
+
+        sight_pos = (sight_x,sight_y)
+
+        return sight_pos
+
+
     def eye_aspect_ratio(self, eyel, eyer):
         # compute the euclidean distances between the two sets of
         # vertical eye landmarks (x, y)-coordinates, averaged between two eyes 
@@ -99,6 +122,15 @@ class Detector(object):
 
         # return the averaged Eye Aspect Ratio
         return ear
+
+    def mouth_aspect_ratio(self,shape):
+        # compute the width and height of mouth
+        width = dist.euclidean(shape[49], shape[55])
+        height = dist.euclidean(shape[52], shape[58])
+        mar = width/height
+
+        # return the eye aspect ratio
+        return mar
 
 
     def measure_distance(self, pos1=33, pos2=9):   
@@ -168,6 +200,31 @@ class Detector(object):
             self.EAR_COUNTER  = 0
             self.EAR_ALARM_ON = False
 
+    def mouth_ratio_detect(self,mar,shape):
+        # check to see if the eye aspect ratio is below the blink
+        # threshold, and if so, increment the blink frame counter
+        if mar < MOUTH_AR_THRESH:
+            self.MAR_COUNTER += 1
+
+            # if the eyes were closed for a sufficient number of
+            # then sound the alarm
+            if self.MAR_COUNTER >= MOUTH_AR_CONSEC_FRAMES:
+                # if the alarm is not on, turn it on
+                if not self.MAR_ALARM_ON:
+                    self.MAR_ALARM_ON = True
+                    self.start_alarm()
+
+                # draw an alarm on the frame
+                cv2.putText(self.frame, "YARN ALERT!", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+        # otherwise, the eye aspect ratio is not below the blink
+        # threshold, so reset the counter and alarm
+        else:
+            self.MAR_COUNTER = 0
+            self.MAR_ALARM_ON = False
+
+
 
     def head_x_turn_detect(self, xMoveRatio, shape):
         # check to see if the head movement X ratio is below or above the X direction movement
@@ -230,6 +287,9 @@ class Detector(object):
             # array
             shape = face_utils.shape_to_np( self.shape_predictor(self.gray_frame, rect) )
 
+            # Get the face rectangular 
+            (x, y, w, h) = face_utils.rect_to_bb(rect)
+
             leftEye     = shape[lStart:lEnd]
             rightEye    = shape[rStart:rEnd]
             leftEar     = shape[learStart:learEnd]
@@ -237,6 +297,8 @@ class Detector(object):
             nose        = shape[nStart:nEnd]
             mouth       = shape[mStart:mEnd]
             jaw         = shape[jStart:jEnd]
+            lIris = self.get_iris(leftEye)
+            rIris = self.get_iris(rightEye)
 
             # compute the convex hull for the left and right eye, then
             # visualize each of the eyes
@@ -249,25 +311,36 @@ class Detector(object):
             mouthHull    = cv2.convexHull(mouth)
             cv2.drawContours(self.frame, [leftEyeHull], -1, (0, 255, 0), 1)
             cv2.drawContours(self.frame, [rightEyeHull], -1, (0, 255, 0), 1)
+            cv2.rectangle(self.frame, (x, y), (x + w, y + h), (200,244,66), 2)
+            cv2.drawContours(self.frame, [nose], -1, (179,66,244), 1)
+            cv2.drawContours(self.frame, [mouth], -1, (179,66,244), 1)
             # cv2.drawContours(frame, [leftEarHull], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [rightEarHull], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [nose], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [mouth], -1, (0, 255, 0), 1)
             # cv2.drawContours(frame, [jaw], -1, (0, 255, 0), 1)
-            self.draw_facepoint(shape, 33, 35)
-            self.draw_facepoint(shape, 8, 10)
+            #self.draw_facepoint(shape, 33, 35)
+            #self.draw_facepoint(shape, 8, 10)
 
 
             ear = self.eye_aspect_ratio(leftEye, rightEye)
+            mar = self.mouth_aspect_ratio(shape)
             xMoveRatio, yMoveRatio = self.head_x_y_move(shape)
-            #headYMove = measure_distance(33,9)
+           
          
-            self.eye_ratio_detect(ear, shape)            
+            self.eye_ratio_detect(ear, shape)
+            self.mouth_ratio_detect(mar,shape)            
             self.head_y_turn_detect(yMoveRatio, shape)
             self.head_x_turn_detect(xMoveRatio, shape)
+
+            cv2.line(self.frame,lIris,self.draw_sight(lIris,xMoveRatio,yMoveRatio),(255,0,0),1)
+            cv2.line(self.frame,rIris,self.draw_sight(rIris,xMoveRatio,yMoveRatio),(255,0,0),1)
             
-            cv2.putText(self.frame, "EAR: {:.2f}".format(ear), (300, 30),
+            cv2.putText(self.frame, "EAR: {:.2f}".format(ear), (300, 120),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+            cv2.putText(self.frame, "MAR: {:.2f}".format(mar), (300, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
             cv2.putText(self.frame, "X: {:.2f}".format(xMoveRatio), (300, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)                  
@@ -277,10 +350,12 @@ class Detector(object):
 
         try: 
             return (ear, self.EAR_ALARM_ON, \
+                    mar, self.MAR_ALARM_ON,\
                     yMoveRatio, self.HY_ALARM_ON, \
                     xMoveRatio, self.HX_ALARM_ON)
         except:
             return (None, self.EAR_ALARM_ON, \
+                    None, self.MAR_ALARM_ON,\
                     None, self.HY_ALARM_ON, \
                     None, self.HX_ALARM_ON)
 
@@ -304,7 +379,7 @@ if __name__ == '__main__':
         # it, and convert it to grayscale channels)
         dt.new_frame(vs.read())
      
-        ear, EAR_ALARM_ON, yMoveRatio, HY_ALARM_ON, xMoveRatio, HX_ALARM_ON = dt.analyze_frame()
+        ear, EAR_ALARM_ON, mar, MAR_ALARM_ON, yMoveRatio, HY_ALARM_ON, xMoveRatio, HX_ALARM_ON = dt.analyze_frame()
 
         # show the frame
         cv2.imshow("Frame", dt.frame)

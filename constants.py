@@ -4,8 +4,11 @@ from imutils import face_utils
 # blink and then a second constant for the number of consecutive
 # frames the eye must be below the threshold for to set off the
 # alarm
-EYE_AR_THRESH = 0.3
+EYE_AR_THRESH = 0.25
 EYE_AR_CONSEC_FRAMES = 48
+
+MOUTH_AR_THRESH = 1.0
+MOUTH_AR_CONSEC_FRAMES = 48
 
 # define three constants, one for the head y direction movement Lower Control Limit 
 # one for the head y direction movement Upper Control Limit 
@@ -14,6 +17,8 @@ EYE_AR_CONSEC_FRAMES = 48
 # alarm
 Y_LCL = 0.8
 Y_UCL = 1.25
+Y_LCL_ARR = []
+Y_UCL_ARR = []
 Y_CONSEC_FRAMES = 30
 
 # define three constants, one for the head x direction movement Lower Control Limit 
@@ -23,7 +28,13 @@ Y_CONSEC_FRAMES = 30
 # alarm
 X_LCL = 0.5
 X_UCL = 1.6
+X_LCL_ARR = []
+X_UCL_ARR = []
 X_CONSEC_FRAMES = 30
+
+
+# count the first 5 frame
+FIRST5_FRAME = 0
 
 # grab the indexes of the facial landmarks for the left and
 # right eye, respectively
