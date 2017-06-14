@@ -181,6 +181,13 @@ class Detector(object):
         #print('xMoveRatio: {}; yMoveRatio: {}'.format(xMoveRatio, yMoveRatio))
 
         return xMoveRatio, yMoveRatio
+
+
+    def connect_facepoint(self,shape,pos1,pos2):
+        for pos in range(pos1,pos2):
+            print (pos)
+
+            cv2.line(self.frame,tuple(shape[pos]),tuple(shape[pos+1]),(255,0,0),1)
     
 
     def draw_facepoint(self, shape, pos1, pos2):
@@ -296,8 +303,9 @@ class Detector(object):
             self.HY_ALARM_ON = False
 
 
-    def calibrate(self,FIRST5_FRAME,xMoveRatio,yMoveRatio):      
-
+    def calibrate(self,xMoveRatio,yMoveRatio):      
+        global FIRST5_FRAME,X_UCL,X_LCL,Y_UCL,Y_LCL,X_UCL_ARR,X_LCL_ARR,Y_LCL_ARR,Y_UCL_ARR
+        
         if FIRST5_FRAME <= 5:
 
                 x_lcl = xMoveRatio*0.5
@@ -321,7 +329,6 @@ class Detector(object):
                 FIRST5_FRAME+=1
                 print (FIRST5_FRAME)
 
-        return X_UCL,X_LCL,Y_UCL,Y_LCL
 
 
 
@@ -362,21 +369,31 @@ class Detector(object):
             cv2.drawContours(self.frame, [leftEyeHull], -1, (0, 255, 0), 1)
             cv2.drawContours(self.frame, [rightEyeHull], -1, (0, 255, 0), 1)
             cv2.rectangle(self.frame, (x, y), (x + w, y + h), (200,244,66), 2)
-            cv2.drawContours(self.frame, [nose], -1, (179,66,244), 1)
-            cv2.drawContours(self.frame, [mouth], -1, (179,66,244), 1)
-            # cv2.drawContours(frame, [leftEarHull], -1, (0, 255, 0), 1)
-            # cv2.drawContours(frame, [rightEarHull], -1, (0, 255, 0), 1)
-            # cv2.drawContours(frame, [nose], -1, (0, 255, 0), 1)
-            # cv2.drawContours(frame, [mouth], -1, (0, 255, 0), 1)
-            # cv2.drawContours(frame, [jaw], -1, (0, 255, 0), 1)
-            #self.draw_facepoint(shape, 33, 35)
-            #self.draw_facepoint(shape, 8, 10)
+            ##cv2.drawContours(self.frame, [nose], -1, (179,66,244), 1)
+            #cv2.drawContours(self.frame, [mouth], -1, (179,66,244), 1)
+            #cv2.drawContours(self.frame, [leftEarHull], -1, (0, 255, 0), 1)
+            #cv2.drawContours(self.frame, [rightEarHull], -1, (0, 255, 0), 1)
+            #cv2.drawContours(self.frame, [jaw], -1, (0, 255, 0), 1)
 
-            
+
+            # Draw eye brow outlines
+            self.connect_facepoint(shape,17,21)
+            self.connect_facepoint(shape,22,26)
+            # Draw mouth outline
+            self.connect_facepoint(shape,48,60)
+            # Draw face outline
+            self.connect_facepoint(shape,0,16)
+            # Draw nose outline
+            self.connect_facepoint(shape,27,30)
+            self.connect_facepoint(shape,31,35)
+            # Draw eye outline
+            # self.connect_facepoint(shape,36,40)
+            # self.connect_facepoint(shape,42,48)
+
             ear = self.eye_aspect_ratio(leftEye, rightEye)
             mar = self.mouth_aspect_ratio(shape)
             xMoveRatio, yMoveRatio = self.head_x_y_move(shape)
-            X_UCL,X_LCL,Y_UCL,Y_LCL = self.calibrate(FIRST5_FRAME,xMoveRatio,yMoveRatio)
+            self.calibrate(xMoveRatio,yMoveRatio)
 
             self.eye_ratio_detect(ear, shape)
             self.mouth_ratio_detect(mar,shape)            
