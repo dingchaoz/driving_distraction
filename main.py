@@ -18,6 +18,7 @@ time.sleep(1.0)
 root = tk.Tk()
 root.wm_title("Driving Monitor")
 myapp = GUI(root, dt, vs)
+#myapp.voice_command()
 
 tk.mainloop()
 

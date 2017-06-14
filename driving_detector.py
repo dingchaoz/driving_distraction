@@ -16,6 +16,7 @@ import time
 import dlib
 import cv2
 import pdb
+import os
 
 class Detector(object):
     '''
@@ -50,15 +51,17 @@ class Detector(object):
         return face_detector, shape_predictor
 
 
-    def start_alarm(self):
+    def start_alarm(self,message):
         # check to see if an alarm file was supplied,
         # and if so, start a thread to have the alarm
         # sound played in the background
-        if self.alarm_path is not None:
-            t = Thread(target=playsound,
-                args=(self.alarm_path,))
-            t.deamon = True
-            t.start()
+
+        # if self.alarm_path is not None:
+        #     t = Thread(target=playsound,
+        #         args=(self.alarm_path,))
+        #     t.deamon = True
+        #     t.start()
+        os.system('say -v Victoria ' + message)
 
         return
 
@@ -188,7 +191,7 @@ class Detector(object):
                 # if the alarm is not on, turn it on
                 if not self.EAR_ALARM_ON:
                     self.EAR_ALARM_ON = True
-                    self.start_alarm()
+                    self.start_alarm('Hey Wake up')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "DROWSINESS ALERT!", (10, 30),
@@ -212,7 +215,7 @@ class Detector(object):
                 # if the alarm is not on, turn it on
                 if not self.MAR_ALARM_ON:
                     self.MAR_ALARM_ON = True
-                    self.start_alarm()
+                    self.start_alarm('Your mouth can fit an elepant')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "YARN ALERT!", (10, 30),
@@ -237,7 +240,7 @@ class Detector(object):
                 # if the alarm is not on, turn it on
                 if not self.HX_ALARM_ON:
                     self.HX_ALARM_ON = True
-                    self.start_alarm()
+                    self.start_alarm('Watch ahead please')
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "HEAD MOVEMENT X ALERT!", (10, 30),
@@ -262,7 +265,11 @@ class Detector(object):
                 # if the alarm is not on, turn it on
                 if not self.HY_ALARM_ON:
                     self.HY_ALARM_ON = True
-                    self.start_alarm()
+                    if yMoveRatio > Y_UCL:
+                        self.start_alarm('Are you staring at a flying pig ?')
+                    if yMoveRatio < Y_LCL:
+                        self.start_alarm(' Did you notice an hundred dollar bill on the mat ?')
+
 
                 # draw an alarm on the frame
                 cv2.putText(self.frame, "HEAD MOVEMENT Y ALERT!", (10, 30),

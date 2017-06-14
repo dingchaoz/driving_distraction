@@ -1,7 +1,9 @@
 from PIL import Image
 from PIL import ImageTk
+import speech_recognition as sr
 import tkinter as tk
 import threading
+import logging
 import imutils
 import cv2
 import os
@@ -23,6 +25,7 @@ class GUI(object):
 
         self.displayFrame = tk.Frame(self._root)
         self.displayFrame.grid(row = 1, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.logger = logging.getLogger(__name__)
 
         self._root.bind('<Escape>', lambda e: self.quit())
         self.createLogoFrame()
@@ -128,6 +131,40 @@ class GUI(object):
         self.stop_btn.grid(row=7, column=2, sticky=tk.N+tk.S+tk.E+tk.W, padx=(0, 10))
 
 
+    def voice_command(self):
+        # for testing purposes, we're just using the default API key
+        GOOGLE_SPEECH_RECOGNITION_API_KEY = None
+
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+
+            while True:
+                self.logger.debug("Awaiting user input.")
+                audio = r.listen(source)
+
+                self.logger.debug("Attempting to transcribe user input.")
+
+                try:
+                    result = r.recognize_google(audio,
+                                                key=GOOGLE_SPEECH_RECOGNITION_API_KEY)
+
+                    if result == 'start':
+                        self.onStart()
+
+                    elif result == 'stop':
+                        self.onStop()
+
+                except sr.UnknownValueError:
+                    self.logger.debug("Google Speech Recognition could not understand audio")
+                except sr.RequestError as e:
+                    self.logger.warn("Could not request results from Google Speech Recognition service: %s", e)
+                except Exception as e:
+                    self.logger.error("Could not process text: %s", e)
+
+
+
+
+
     def onStop(self):
         '''
         Stop video streaming
@@ -180,6 +217,8 @@ if __name__ == '__main__':
     #vs = cv2.VideoCapture(0)
 
     myapp = GUI(root, vs)
+
+    #myapp.voice_command()
 
     tk.mainloop()
 
