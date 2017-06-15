@@ -4,11 +4,11 @@ from imutils import face_utils
 # blink and then a second constant for the number of consecutive
 # frames the eye must be below the threshold for to set off the
 # alarm
-EYE_AR_THRESH = 0.25
-EYE_AR_CONSEC_FRAMES = 6
+EYE_AR_THRESH = 0.27
+EYE_AR_CONSEC_FRAMES = 5
 
 MOUTH_AR_THRESH = 1.0
-MOUTH_AR_CONSEC_FRAMES = 6
+MOUTH_AR_CONSEC_FRAMES = 5
 
 # define three constants, one for the head y direction movement Lower Control Limit 
 # one for the head y direction movement Upper Control Limit 
