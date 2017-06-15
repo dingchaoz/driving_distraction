@@ -75,4 +75,4 @@ known_faces = [
     kface4_face_encoding
 ]
 
-know_faces_names = ['Obama','Dingchao','Dingchao, you look much handsome now','Yuntao']
+know_faces_names = ['Obama','Yuntao','Dingchao, you look much handsome now','Yuntao']

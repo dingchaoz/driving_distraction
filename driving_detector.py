@@ -10,8 +10,8 @@ from imutils import face_utils
 from threading import Thread
 import numpy as np
 from playsound import playsound
-import speech_recognition as sr
-import argparse
+#import speech_recognition as sr
+#import argparse
 import imutils
 import time
 import dlib
@@ -237,7 +237,7 @@ class Detector(object):
                     self.start_alarm('You look tired')
 
                 # draw an alarm on the frame
-                cv2.putText(self.frame, "YARN ALERT!", (10, 30),
+                cv2.putText(self.frame, "Drowsiness ALERT!", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         # otherwise, the eye aspect ratio is not below the blink
@@ -432,7 +432,7 @@ class Detector(object):
             
 
             indices_match = np.where(match)[0]
-            print ('indice_match',indices_match)
+            # print ('indice_match',indices_match)
             if indices_match >= 0:
                 
                 facename = know_faces_names[indices_match[0]]
@@ -561,7 +561,7 @@ class Detector(object):
             
             # cv2.putText(self.frame, "Y: {:.2f}".format(yMoveRatio), (300, 90),
             #     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
+        
         try: 
             return (ear, self.EAR_ALARM_ON, \
                     yMoveRatio, self.HY_ALARM_ON, \
@@ -596,8 +596,8 @@ if __name__ == '__main__':
         # it, and convert it to grayscale channels)
         dt.new_frame(vs.read())
      
-        ear, EAR_ALARM_ON, mar, MAR_ALARM_ON, yMoveRatio, HY_ALARM_ON, xMoveRatio, HX_ALARM_ON = dt.analyze_frame()
-
+        ear, EAR_ALARM_ON, yMoveRatio, HY_ALARM_ON, xMoveRatio, HX_ALARM_ON, mar, MAR_ALARM_ON = dt.analyze_frame()
+        print(mar, MAR_ALARM_ON)
         # show the frame
         cv2.imshow("Frame", dt.frame)
         key = cv2.waitKey(1) & 0xFF

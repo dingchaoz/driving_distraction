@@ -5,8 +5,8 @@ from threading import Thread
 import imutils
 import cv2
 import os
-import speech_recognition as sr
-import logging
+#import speech_recognition as sr
+#import logging
 
 
 class GUI(object):
@@ -69,8 +69,8 @@ class GUI(object):
             frame = self._dt.read()
             
         else:
-            frame = cv2.imread('./resource/idle.png')
-            status = (None, False, None, False, None, False)
+            frame = cv2.imread('./resource/idle1.png')
+            status = (None, False, None, False, None, False, None, False)
 
         cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         cv2image = imutils.resize(cv2image, width=self._frame_width)
@@ -163,6 +163,9 @@ class GUI(object):
         elif status[5]:
             self.status_msg.set('X Distraction\nALERT!')
             self.status_box.config(fg='dark orange')
+        elif status[7]:
+            self.status_msg.set('Drowsiness\nALERT!')
+            self.status_box.config(fg='red2')
         else:
             self.status_msg.set('Normal')
             self.status_box.config(fg='green3')
